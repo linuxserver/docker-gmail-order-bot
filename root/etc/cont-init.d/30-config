@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+
+# copy out default bots
+if [ ! -d /config/bots ]; then
+	cp -ax /defaults/bots /config/bots
+	chown -R abc:abc /config/bots
+fi
+
+# bot module install
+if [ ! -d /config/bots/${BOT_NAME}/node_modules ]; then
+	s6-setuidgid abc npm install --prefix /config/bots/${BOT_NAME}
+fi
+
+# permissions
+chown -R abc:abc \
+        /config
