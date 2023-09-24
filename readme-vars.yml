@@ -27,7 +27,7 @@ param_usage_include_ports: false
 param_usage_include_env: true
 param_env_vars:
   - { env_var: "BOT_NAME", env_value: "discord", desc: "On successful order receive send the order payload to this bot (default bots are located in root/defaults/bots)"}
-  - { env_var: "LOOP_TIME", env_value: 60, desc: "Time in seconds to reach into gmail and get new messages to process"}
+  - { env_var: "LOOP_TIME", env_value: "60", desc: "Time in seconds to reach into gmail and get new messages to process"}
 
 # application setup block
 app_setup_block_enabled: true

@@ -7,10 +7,11 @@ jobs:
   external-trigger-master:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v3.1.0
 
       - name: External Trigger
         if: github.ref == 'refs/heads/master'
         run: |
           echo "**** No external release, exiting ****"
+          echo "No external release, exiting" >> $GITHUB_STEP_SUMMARY
           exit 0
