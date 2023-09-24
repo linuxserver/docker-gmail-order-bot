@@ -55,7 +55,7 @@ The architectures supported by this image are:
 | :----: | :----: | ---- |
 | x86-64 | ✅ | amd64-\<version tag\> |
 | arm64 | ✅ | arm64v8-\<version tag\> |
-| armhf| ✅ | arm32v7-\<version tag\> |
+| armhf | ❌ | |
 
 ## Application Setup
 
@@ -63,7 +63,7 @@ This container is for developers only! We make pre-defined bots we use in our wo
 
 The entire basis of this is to act as middleware between your email address receiving orders from https://checkout.linuxserver.io and send them to some external service. The bot will archive any messages that do not come from orders@nanocheckout.com with valid DKIM signatures, so definetly do not use this on a personal account.
 
-The concept behind this bot and using email as a destination for orders is to serve normal users that simply want an email for an order out of the box and provide a free messaging queue akin to something like RabbitMQ for people that want to automate order ingestion. 
+The concept behind this bot and using email as a destination for orders is to serve normal users that simply want an email for an order out of the box and provide a free messaging queue akin to something like RabbitMQ for people that want to automate order ingestion.
 
 By default we include bots we use that will be copied over on first container run, for example a simple discord ping when an order is received with the order details:
 ```
@@ -87,9 +87,9 @@ exports.orderbot = async function(order) {
 }
 ```
 
-This code will be passed an order object containing all the order details parsed from the email message. Here we use custom env variables to set application settings to connect up to and send a message to discord. 
+This code will be passed an order object containing all the order details parsed from the email message. Here we use custom env variables to set application settings to connect up to and send a message to discord.
 
-In order to use this bot you will need to perform the following setup steps: 
+In order to use this bot you will need to perform the following setup steps:
 1. Create a dedicated gmail account to use for https://checkout.linuxserver.io
 2. Enable API access to this Gmail account by clicking on `Enable the Gmail API` here https://developers.google.com/gmail/api/quickstart/nodejs
 3. Save your credentials.json file from that action to the folder you will be bind mounting as `/config`
@@ -97,7 +97,7 @@ In order to use this bot you will need to perform the following setup steps:
 5. Go to the URL prompted and enter the key you get from it.
 6. Start the container using the run/compose example in this readme.
 
-When the container starts if you are using a custom bot located in `/config/bots` it will install the node modules included in it's package.json, do not use system level node modules this container is Alpine based and it will cause conflicts. 
+When the container starts if you are using a custom bot located in `/config/bots` it will install the node modules included in it's package.json, do not use system level node modules this container is Alpine based and it will cause conflicts.
 
 From there the bot will loop in for your defined timeout and pull in emails and spit out orders to your destination.
 
@@ -117,6 +117,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+      - TZ=Etc/UTC
       - BOT_NAME=discord
       - LOOP_TIME=60
     volumes:
@@ -131,11 +132,13 @@ docker run -d \
   --name=gmail-order-bot \
   -e PUID=1000 \
   -e PGID=1000 \
+  -e TZ=Etc/UTC \
   -e BOT_NAME=discord \
   -e LOOP_TIME=60 \
   -v /path/to/data:/config \
   --restart unless-stopped \
   lscr.io/lsiodev/gmail-order-bot:latest
+
 ```
 
 ## Parameters
@@ -146,6 +149,7 @@ Container images are configured using parameters passed at runtime (such as thos
 | :----: | --- |
 | `-e PUID=1000` | for UserID - see below for explanation |
 | `-e PGID=1000` | for GroupID - see below for explanation |
+| `-e TZ=Etc/UTC` | specify a timezone to use, see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). |
 | `-e BOT_NAME=discord` | On successful order receive send the order payload to this bot (default bots are located in root/defaults/bots) |
 | `-e LOOP_TIME=60` | Time in seconds to reach into gmail and get new messages to process |
 | `-v /config` | Path to gmail tokens and custom/default bots |
@@ -259,4 +263,5 @@ Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64
 
 ## Versions
 
+* **24.09.23:** - Deprecate.
 * **06.07.20:** - Initial Release.

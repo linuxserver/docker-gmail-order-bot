@@ -9,11 +9,12 @@ project_blurb: |
   [{{ project_name|capitalize }}]({{ project_url }}) - A bot used to leverage a Gmail account as an order messaging service to consume email orders from [Nano Checkout](https://github.com/linuxserver/nano-checkout) and process them using any custom logic you choose.
 project_lsio_github_repo_url: "https://github.com/linuxserver/docker-{{ project_name }}"
 
+project_deprecation_status: true
+
 # supported architectures
 available_architectures:
   - { arch: "{{ arch_x86_64 }}", tag: "amd64-latest"}
   - { arch: "{{ arch_arm64 }}", tag: "arm64v8-latest"}
-  - { arch: "{{ arch_armhf }}", tag: "arm32v7-latest"}
 
 # container parameters
 common_param_env_vars_enabled: true
@@ -26,7 +27,7 @@ param_usage_include_ports: false
 param_usage_include_env: true
 param_env_vars:
   - { env_var: "BOT_NAME", env_value: "discord", desc: "On successful order receive send the order payload to this bot (default bots are located in root/defaults/bots)"}
-  - { env_var: "LOOP_TIME", env_value: 60, desc: "Time in seconds to reach into gmail and get new messages to process"}
+  - { env_var: "LOOP_TIME", env_value: "60", desc: "Time in seconds to reach into gmail and get new messages to process"}
 
 # application setup block
 app_setup_block_enabled: true
@@ -35,7 +36,7 @@ app_setup_block: |
 
   The entire basis of this is to act as middleware between your email address receiving orders from https://checkout.linuxserver.io and send them to some external service. The bot will archive any messages that do not come from orders@nanocheckout.com with valid DKIM signatures, so definetly do not use this on a personal account.
 
-  The concept behind this bot and using email as a destination for orders is to serve normal users that simply want an email for an order out of the box and provide a free messaging queue akin to something like RabbitMQ for people that want to automate order ingestion. 
+  The concept behind this bot and using email as a destination for orders is to serve normal users that simply want an email for an order out of the box and provide a free messaging queue akin to something like RabbitMQ for people that want to automate order ingestion.
 
   By default we include bots we use that will be copied over on first container run, for example a simple discord ping when an order is received with the order details:
   ```
@@ -43,8 +44,8 @@ app_setup_block: |
   const YAML = require('yaml');
   const discordtoken = process.env.DISCORD_TOKEN;
   const roomid = process.env.DISCORD_ROOM
-  
-  
+
+
   exports.orderbot = async function(order) {
     return new Promise(resolve => {
       const client = new Discord.Client();
@@ -59,9 +60,9 @@ app_setup_block: |
   }
   ```
 
-  This code will be passed an order object containing all the order details parsed from the email message. Here we use custom env variables to set application settings to connect up to and send a message to discord. 
+  This code will be passed an order object containing all the order details parsed from the email message. Here we use custom env variables to set application settings to connect up to and send a message to discord.
 
-  In order to use this bot you will need to perform the following setup steps: 
+  In order to use this bot you will need to perform the following setup steps:
   1. Create a dedicated gmail account to use for https://checkout.linuxserver.io
   2. Enable API access to this Gmail account by clicking on `Enable the Gmail API` here https://developers.google.com/gmail/api/quickstart/nodejs
   3. Save your credentials.json file from that action to the folder you will be bind mounting as `/config`
@@ -69,10 +70,11 @@ app_setup_block: |
   5. Go to the URL prompted and enter the key you get from it.
   6. Start the container using the run/compose example in this readme.
 
-  When the container starts if you are using a custom bot located in `/config/bots` it will install the node modules included in it's package.json, do not use system level node modules this container is Alpine based and it will cause conflicts. 
+  When the container starts if you are using a custom bot located in `/config/bots` it will install the node modules included in it's package.json, do not use system level node modules this container is Alpine based and it will cause conflicts.
 
-  From there the bot will loop in for your defined timeout and pull in emails and spit out orders to your destination. 
+  From there the bot will loop in for your defined timeout and pull in emails and spit out orders to your destination.
 
 # changelog
 changelogs:
+  - { date: "24.09.23:", desc: "Deprecate." }
   - { date: "06.07.20:", desc: "Initial Release." }
